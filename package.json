@@ -1,0 +1,21 @@
+{
+  "name": "vpet",
+  "version": "1.0.0",
+  "description": "A virtual desktop pet.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron main.js",
+    "robot:rebuild": "npm rebuild --runtime=electron --target=28.1.1 --disturl=https://atom.io/download/atom-shell --abi=119"
+  },
+  "author": "MrS-E",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^28.1.1",
+    "electron-positioner": "^4.1.0",
+    "path": "^0.12.7",
+    "robotjs": "^0.6.0"
+  },
+  "devDependencies": {
+    "node-abi": "^3.54.0"
+  }
+}
