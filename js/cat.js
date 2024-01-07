@@ -112,6 +112,10 @@ class Cat{
         document.getElementById("image-container").src = "assets/cat_sleep.gif";
         this.removeMovementInterval()
         this.feelings.sleepiness = 0;
+        setTimeout(() => {
+            document.getElementById("image-container").src = "assets/cat.png";
+        }, 100000);
+        this.setMovemntInterval()
     }
 
     move() {
