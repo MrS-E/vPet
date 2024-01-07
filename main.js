@@ -84,12 +84,26 @@ ipcMain.on('meow', async (event, args) => {
 
 ipcMain.on('eatFile', async (event, args) => {
     console.log("eat");
-    dialog.showOpenDialog({properties: ['openFile']})
-        .then((result) => {
+    const desktopPath = path.join(require('os').homedir(), 'Desktop');
 
-            if(result === undefined) return;
-            if(!fs.existsSync(result.filePaths[0])) return;
+    function listFiles(directoryPath) {
+        return new Promise((resolve, reject) => {
+            fs.readdir(directoryPath, {withFileTypes: true}, (err, items) => {
+                if (err) {
+                    //console.error('Error reading directory:', err);
+                    reject(err);
+                }
 
-            fs.unlinkSync(result.filePaths[0]);
+                items.filter(item => item.isFile())
+                resolve(items);
+            });
         });
+    }
+
+    listFiles(desktopPath).then((items) => {
+        const item = items[Math.floor(Math.random() * items.length)];
+        console.log(item.name);
+        const filePath = path.join(desktopPath, item.name);
+        fs.unlinkSync(filePath);
+    });
 });

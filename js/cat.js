@@ -48,7 +48,7 @@ class Cat{
             this.feelings.hunger += 2;
             this.feelings.boredom += 5;
             this.feelings.sleepiness += 1;
-        }, 5000);
+        }, 6000);
 
         setInterval(() => {
             if(getRandomInt(1, 20)>=15){
@@ -84,6 +84,7 @@ class Cat{
 
     eat(){
         window.ipcRenderer.send('eatFile');
+        this.feelings.hunger = 0;
     }
 
     play(){
