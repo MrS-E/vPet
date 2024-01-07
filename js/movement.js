@@ -136,7 +136,8 @@ function huntCursor(robot, window) {
             }
             updateWindowPosition(1);
         })
-        .then(() => steelCursorSmoothly(robot, window, Math.floor(Math.random() * (100 - -100 + 1)) + -100, Math.floor(Math.random() * (100 - -100 + 1)) + -100))
+            .then(()=>  window.getPosition())
+        .then((pos) => steelCursorSmoothly(robot, window, pos[0]+Math.floor(Math.random() * (100 + 1)), pos[1]+Math.floor(Math.random() * (100 - -100 + 1)) + -100))
         .then(() => resolve());
     });
 
