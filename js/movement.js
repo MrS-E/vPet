@@ -54,5 +54,46 @@ function moveCursorSmoothly(mouse, targetX=1000, targetY=1000, duration=5000) {
     updateCursorPosition();
 }
 
+function huntCursor(robot, window) {
+    return new Promise((resolve) => {
+        new Promise((resolve,) => {
+            function updateWindowPosition(progress) {
+                const currentPosition = window.getPosition();
+                const {x, y} = robot.getMousePos()
 
-module.exports = {moveWindowSmoothly, moveCursorSmoothly};
+                const deltaX = x - (currentPosition[0] + (1870 / 2469 * window.getSize()[0]));
+                const deltaY = y - (currentPosition[1] + (290 / 631 * window.getSize()[1]));
+
+                let moveX;
+                let moveY;
+
+                if ((deltaX > 0 && deltaX < 6) || (deltaX < 0 && deltaX > -6)) moveX = deltaX;
+                else if (deltaX > 0) moveX = 6;
+                else moveX = -6;
+
+                if ((deltaY > 0 && deltaY < 6) || (deltaY < 0 && deltaY > -6)) moveY = deltaY;
+                else if (deltaY > 0) moveY = 6;
+                else moveY = -6;
+
+                const newX = Math.round(currentPosition[0] + moveX);
+                const newY = Math.round(currentPosition[1] + moveY);
+
+                //console.log(moveX, moveY);
+
+                window.setPosition(newX, newY);
+
+                if (moveY > 6 || moveX > 6) {
+                    setTimeout(updateWindowPosition, 16, progress + 1); // 60 frames per second
+                } else {
+                    resolve();
+                }
+            }
+            updateWindowPosition(1);
+        })
+        .then(() => steelCursorSmoothly(robot, window, Math.floor(Math.random() * (100 - -100 + 1)) + -100, Math.floor(Math.random() * (100 - -100 + 1)) + -100))
+        .then(() => resolve());
+    });
+
+}
+
+module.exports = {moveWindowSmoothly, huntCursor, steelCursorSmoothly};

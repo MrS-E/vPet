@@ -1,5 +1,6 @@
 const { app, BrowserWindow, screen, ipcMain } = require('electron');
 const {moveWindowSmoothly, moveCursorSmoothly} = require("./js/movement");
+const {moveWindowSmoothly, moveCursorSmoothly, steelCursorSmoothly, huntCursor} = require("./js/movement");
 const path = require("path");
 const robot = require("@jitsi/robotjs");
 
@@ -66,4 +67,14 @@ ipcMain.on('steelCursor', (event, args) => {
     moveCursorSmoothly(robot, position[0]+args[0], position[1]+args[1], duration);
 });
 
+ipcMain.on('huntCursor', async (event, args) => {
+    console.log("hunt");
+    await huntCursor(robot, win);
+    event.returnValue = "done";
+})
+
+ipcMain.on('meow', async (event, args) => {
+    console.log("meow");
+    sound.play(path.join(__dirname, "assets/meow/", args[0]));
+});
 

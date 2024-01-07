@@ -43,9 +43,9 @@ class Cat{
 
         //increase hunger and boredom
         setInterval(() => {
-            this.feelings.hunger = 5;
-            this.feelings.boredom += 10;
-            his.feelings.sleepiness += 1;
+            this.feelings.hunger += 2;
+            this.feelings.boredom += 5;
+            this.feelings.sleepiness += 1;
         }, 5000);
 
         setInterval(() => {
@@ -54,15 +54,10 @@ class Cat{
             }
         }, 1000);
 
-        setInterval( () => {
-            this.move();
-        }, 1000);
-
-        //boredom listener TODO replace listeners with brainsAI
-        this.feelings.boredomListener = (val)=>{
+        this.feelings.boredomListener = async (val)=>{
             if(val > 100){
                 this.meow();
-                this.play();
+                this.hunt();
             }
         }
 
@@ -101,7 +96,15 @@ class Cat{
         window.ipcRenderer.send('steelCursor', [x,y]);
     }
 
-    sleep(){ //TODO change image
+    hunt(){
+        window.ipcRenderer.sendSync('huntCursor');
+        this.feelings.boredom = 0;
+        this.feelings.sleepiness += 20;
+    }
+
+    sleep(){
+        document.getElementById("image-container").src = "assets/cat_sleep.gif";
+        this.removeMovementInterval()
         this.feelings.sleepiness = 0;
     }
 
