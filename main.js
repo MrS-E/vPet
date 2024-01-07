@@ -8,8 +8,8 @@ const fs = require("fs");
 let win;
 function createWindow() {
     win = new BrowserWindow({
-        width: 200,
-        height: 200,
+        width: 600,
+        height: 600,
         transparent: true,
         frame: false,
         resizable: false,
@@ -24,7 +24,7 @@ function createWindow() {
     });
 
     win.loadFile(path.join(__dirname, "index.html"));
-    //win.webContents.openDevTools();
+    win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
@@ -79,7 +79,7 @@ ipcMain.on('huntCursor', async (event, args) => {
 
 ipcMain.on('meow', async (event, args) => {
     console.log("meow");
-    sound.play(path.join(__dirname, "assets/meow/", args[0]));
+    sound.play(path.join(__dirname, "assets/meow/", args));
 });
 
 ipcMain.on('eatFile', async (event, args) => {

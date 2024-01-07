@@ -32,22 +32,22 @@ class Cat{
             },
         };
 
-        this.meowType = { //TODO change sounds
+        this.meowType = {
+            happy: 'meow_happy.mp3',
+            needy: 'meow_needy.mp3',
             normal: 'meow.mp3',
-            needy: 'meow.mp3',
-            happy: 'meow.mp3',
-            sad: 'meow.mp3',
-            angry: 'meow.mp3',
-            fearful: 'meow.mp3',
+            sad: 'meow_sad.mp3',
         }
+
+        this.worker = undefined
 
         //TODO replace listeners and intervals with brainsAI
         this.setMovemntInterval()
 
         setInterval(() => {
-            this.feelings.hunger += 2;
+            this.feelings.hunger += 1;
             this.feelings.boredom += 5;
-            this.feelings.sleepiness += 1;
+            this.feelings.sleepiness += 2;
         }, 6000);
 
         setInterval(() => {
@@ -83,6 +83,7 @@ class Cat{
     }
 
     eat(){
+        this.meow("happy")
         window.ipcRenderer.send('eatFile');
         this.feelings.hunger = 0;
     }
@@ -91,6 +92,8 @@ class Cat{
         this.removeMovementInterval()
         const x = getRandomInt(0, 500);
         const y = getRandomInt(-500, 500);
+
+        this.meow("happy")
 
         document.getElementById("image-container").style.transform = "scaleX(1)";
 
@@ -104,6 +107,7 @@ class Cat{
     }
 
     hunt(){
+        this.meow("needy")
         window.ipcRenderer.sendSync('huntCursor');
         this.feelings.boredom = 0;
         this.feelings.sleepiness += 20;
@@ -111,12 +115,13 @@ class Cat{
 
     sleep(){
         document.getElementById("image-container").src = "assets/cat_sleep.gif";
+        this.meow("sad")
         this.removeMovementInterval()
         this.feelings.sleepiness = 0;
         setTimeout(() => {
             document.getElementById("image-container").src = "assets/cat.png";
+            this.setMovemntInterval()
         }, 100000);
-        this.setMovemntInterval()
     }
 
     move() {
@@ -136,15 +141,27 @@ class Cat{
         return true;
     }
     setMovemntInterval(){
-        this.movement = setInterval(async () => {
+        /*this.movement = setInterval(async () => {
             this.move();
-        }, 500);
+        }, 500);*/
+        if(this.worker === undefined){
+            this.worker = new Worker('js/movement-worker.js');
+            this.worker.onmessage = function(e) {
+                console.log('Worker said: ', e.data);
+            };
+            this.worker.postMessage(window.ipcRenderer);
+        }
     }
     removeMovementInterval(){
-        clearInterval(this.movement)
+        //clearInterval(this.movement)
+        this.worker.terminate()
+        this.worker = undefined
     }
 }
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+
+//movement-worker.js
