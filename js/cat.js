@@ -90,12 +90,13 @@ class Cat{
         this.removeMovementInterval()
         const x = getRandomInt(0, 500);
         const y = getRandomInt(-500, 500);
-
+        document.getElementById("image-container").src = "assets/cat_move.gif";
         document.getElementById("image-container").style.transform = "scaleX(1)";
 
         setTimeout(()=> {
             window.ipcRenderer.sendSync('steelCursor', [x, y]);
             this.setMovementInterval()
+            document.getElementById("image-container").src = "assets/cat.png";
         }, 50);
 
         this.feelings.hunger += 10;
@@ -103,13 +104,14 @@ class Cat{
     }
 
     hunt(){
+        //TODO add hunt images
         this.meow("needy")
         window.ipcRenderer.sendSync('huntCursor');
         this.feelings.boredom = 0;
         this.feelings.sleepiness += 20;
     }
 
-    sleep(){
+    sleep(){ //TODO replace sleep image
         document.getElementById("image-container").src = "assets/cat_sleep.gif";
         this.meow("sad")
         this.removeMovementInterval()
