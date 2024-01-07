@@ -41,7 +41,7 @@ app.on('activate', () => {
     }
 });
 
-ipcMain.handle('moveWindow', async (event, args) => {
+ipcMain.on('moveWindow', async (event, args) => {
     console.log("move");
     const {width, height} = screen.getPrimaryDisplay().size;
     const position = win.getPosition();
