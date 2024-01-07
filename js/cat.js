@@ -39,8 +39,6 @@ class Cat{
             sad: 'meow_sad.mp3',
         }
 
-        this.worker = undefined;
-
         //TODO replace listeners and intervals with brainsAI
         this.setMovementInterval()
 
@@ -141,33 +139,16 @@ class Cat{
         return true;
     }
     setMovementInterval(){
-        /*this.movement = setInterval(async () => {
+        this.movement = setInterval(async () => {
             this.move();
-        }, 500);*/
-        if(this.worker === undefined && typeof Worker !== "undefined"){
-            this.worker = new Worker('js/movement-worker.js');
-            this.worker.onmessage = (e) => {
-               const data = e.data;
-               if(data.type==="css") document.getElementById("image-container").style.transform = data.value;
-               if(data.type==="src") document.getElementById("image-container").src = data.value;
-               if(data.type==="move") {
-                   window.ipcRenderer.invoke('moveWindow', data.value).then((result) => {
-                       this.worker.postMessage("done");
-                   });
-               }
-            }
-        }
+        }, 500);
+
     }
     removeMovementInterval(){
-        //clearInterval(this.movement)
-        this.worker.terminate();
-        this.worker = undefined;
+        clearInterval(this.movement)
     }
 }
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
-
-//movement-worker.js
