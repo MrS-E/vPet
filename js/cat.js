@@ -92,10 +92,19 @@ class Cat{
     }
 
     play(){
-        const x = getRandomInt(-100, 100);
-        const y = getRandomInt(-100, 100);
+        this.removeMovementInterval()
+        const x = getRandomInt(0, 500);
+        const y = getRandomInt(-500, 500);
+
+        document.getElementById("image-container").style.transform = "scaleX(1)";
+
+        setTimeout(()=> {
+            window.ipcRenderer.sendSync('steelCursor', [x, y]);
+            this.setMovemntInterval()
+        }, 50);
+
+        this.feelings.hunger += 10;
         this.feelings.boredom = 0;
-        window.ipcRenderer.send('steelCursor', [x,y]);
     }
 
     hunt(){

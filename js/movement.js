@@ -33,32 +33,71 @@ function moveWindowSmoothly(window, targetX=1000, targetY=1000) {
     });
 }
 
-function moveCursorSmoothly(mouse, targetX=1000, targetY=1000, duration=5000) {
+/*function moveCursorSmoothly(mouse, targetX=1000, targetY=1000 ) {
 
-    mouse.setMouseDelay(2);
+    return new Promise((resolve, reject) => {
 
-    const currentPosition = mouse.getMousePos();
-    const deltaX = targetX - currentPosition.x;
-    const deltaY = targetY - currentPosition.y;
+        mouse.setMouseDelay(2);
 
-    const startTime = Date.now();
+        const currentPosition = mouse.getMousePos();
+        const deltaX = targetX - currentPosition.x;
+        const deltaY = targetY - currentPosition.y;
 
-    function updateCursorPosition() {
-        const currentTime = Date.now();
-        const currentTimeDiff = currentTime - startTime;
-        const progress = Math.min(1, (currentTime - startTime) / duration);
+        function updateCursorPosition(progress) {
+            const currentPosition = mouse.getMousePos();
 
-        const newX = currentPosition.x + deltaX * progress;
-        const newY = currentPosition.y + deltaY * progress;
+            let moveX = deltaX>0?(2*progress<deltaX?2:0):(-2*progress>deltaX?-2:0);
+            let moveY = deltaY>0?(2*progress<deltaY?2:0):(-2*progress>deltaY?-2:0);
 
-        mouse.moveMouse(Math.round(newX), Math.round(newY));
+            const newX = currentPosition.x + moveX;
+            const newY = currentPosition.y + moveY;
 
-        if (progress < 1) {
-            setTimeout(updateCursorPosition, 16); // 60 frames per second
+            mouse.moveMouse(newX, newY);
+
+            if (moveY!==0 || moveX!==0) {
+                setTimeout(updateCursorPosition, 16, progress+1); // 60 frames per second
+            }else{
+                resolve();
+            }
         }
-    }
 
-    updateCursorPosition();
+        updateCursorPosition(1);
+    });
+}*/
+
+function steelCursorSmoothly(mouse, window, targetX=1000, targetY=1000 ) {
+    return new Promise((resolve) => {
+
+        mouse.setMouseDelay(2);
+
+        const currentPosition = window.getPosition();
+        let deltaX = targetX - currentPosition[0];
+        let deltaY = targetY - currentPosition[1];
+
+        if(deltaX%2!==0) deltaX+=1;
+        if(deltaY%2!==0) deltaY+=1;
+
+        function updateWindowPosition(progress){
+            const currentPosition = window.getPosition();
+            let moveX = deltaX>0?(2*progress<deltaX?1:0):(-2*progress>deltaX?-1:0);
+            let moveY = deltaY>0?(2*progress<deltaY?1:0):(-2*progress>deltaY?-1:0);
+
+            const newX = currentPosition[0] + moveX;
+            const newY = currentPosition[1] + moveY;
+
+            window.setPosition(newX, newY);
+            mouse.moveMouse(newX + (1870 / 2469 * window.getSize()[0]), newY + (290 / 631 * window.getSize()[1]));
+
+            if (moveY!==0 || moveX!==0) {
+                setTimeout(updateWindowPosition, 8, progress+1); // 120 frames per second
+            }else{
+                resolve();
+            }
+        }
+
+        updateWindowPosition(1);
+
+    });
 }
 
 function huntCursor(robot, window) {
