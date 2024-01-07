@@ -24,6 +24,8 @@ function createWindow() {
     });
 
     win.loadFile(path.join(__dirname, "index.html"));
+    /*win.setIgnoreMouseEvents(true) FIXME maybe move cat into canvas and use this
+    win.maximize();*/
     //win.webContents.openDevTools();
 }
 

@@ -132,13 +132,13 @@ class Cat{
         if (x < 0) document.getElementById("image-container").style.transform = "scaleX(-1)";
 
         setTimeout(()=>{ //somehow requestAnimationFrame is not working
-            window.ipcRenderer.sendSync('moveWindow', [x, y])
+            window.ipcRenderer.sendSync('moveWindow', [x, y]) //TODO move to background thread (how?)
             document.getElementById("image-container").src = "assets/cat.png";
         }, 50);
 
         return true;
     }
-    setMovementInterval(){
+    setMovementInterval(){ //fixme the cat is not responsive while moving
         this.movement = setInterval(async () => {
             this.move();
         }, 500);
