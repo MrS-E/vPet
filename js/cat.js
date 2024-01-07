@@ -39,10 +39,10 @@ class Cat{
             sad: 'meow_sad.mp3',
         }
 
-        this.worker = undefined
+        this.worker = undefined;
 
         //TODO replace listeners and intervals with brainsAI
-        this.setMovemntInterval()
+        this.setMovementInterval()
 
         setInterval(() => {
             this.feelings.hunger += 1;
@@ -99,7 +99,7 @@ class Cat{
 
         setTimeout(()=> {
             window.ipcRenderer.sendSync('steelCursor', [x, y]);
-            this.setMovemntInterval()
+            this.setMovementInterval()
         }, 50);
 
         this.feelings.hunger += 10;
@@ -120,7 +120,7 @@ class Cat{
         this.feelings.sleepiness = 0;
         setTimeout(() => {
             document.getElementById("image-container").src = "assets/cat.png";
-            this.setMovemntInterval()
+            this.setMovementInterval()
         }, 100000);
     }
 
@@ -134,28 +134,34 @@ class Cat{
         if (x < 0) document.getElementById("image-container").style.transform = "scaleX(-1)";
 
         setTimeout(()=>{ //somehow requestAnimationFrame is not working
-            window.ipcRenderer.sendSync('moveWindow', [x, y]);
+            window.ipcRenderer.sendSync('moveWindow', [x, y])
             document.getElementById("image-container").src = "assets/cat.png";
         }, 50);
 
         return true;
     }
-    setMovemntInterval(){
+    setMovementInterval(){
         /*this.movement = setInterval(async () => {
             this.move();
         }, 500);*/
-        if(this.worker === undefined){
+        if(this.worker === undefined && typeof Worker !== "undefined"){
             this.worker = new Worker('js/movement-worker.js');
-            this.worker.onmessage = function(e) {
-                console.log('Worker said: ', e.data);
-            };
-            this.worker.postMessage(window.ipcRenderer);
+            this.worker.onmessage = (e) => {
+               const data = e.data;
+               if(data.type==="css") document.getElementById("image-container").style.transform = data.value;
+               if(data.type==="src") document.getElementById("image-container").src = data.value;
+               if(data.type==="move") {
+                   window.ipcRenderer.invoke('moveWindow', data.value).then((result) => {
+                       this.worker.postMessage("done");
+                   });
+               }
+            }
         }
     }
     removeMovementInterval(){
         //clearInterval(this.movement)
-        this.worker.terminate()
-        this.worker = undefined
+        this.worker.terminate();
+        this.worker = undefined;
     }
 }
 

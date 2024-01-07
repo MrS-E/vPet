@@ -41,7 +41,7 @@ app.on('activate', () => {
     }
 });
 
-ipcMain.on('moveWindow', async (event, args) => {
+ipcMain.handle('moveWindow', async (event, args) => {
     console.log("move");
     const {width, height} = screen.getPrimaryDisplay().size;
     const position = win.getPosition();
@@ -53,7 +53,8 @@ ipcMain.on('moveWindow', async (event, args) => {
     }
     const duration = args[2];
     await moveWindowSmoothly(win, position[0] + args[0], position[1] + args[1]);
-    event.returnValue = "done";
+    //event.returnValue = "done";
+    return "done";
 });
 
 ipcMain.on('steelCursor', async (event, args) => {
