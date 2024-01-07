@@ -2,6 +2,8 @@ const { app, BrowserWindow, screen, ipcMain, dialog } = require('electron');
 const {moveWindowSmoothly, moveCursorSmoothly, steelCursorSmoothly, huntCursor} = require("./js/movement");
 const path = require("path");
 const robot = require("@jitsi/robotjs");
+const sound = require("sound-play");
+const fs = require("fs");
 
 let win;
 function createWindow() {
@@ -80,3 +82,14 @@ ipcMain.on('meow', async (event, args) => {
     sound.play(path.join(__dirname, "assets/meow/", args[0]));
 });
 
+ipcMain.on('eatFile', async (event, args) => {
+    console.log("eat");
+    dialog.showOpenDialog({properties: ['openFile']})
+        .then((result) => {
+
+            if(result === undefined) return;
+            if(!fs.existsSync(result.filePaths[0])) return;
+
+            fs.unlinkSync(result.filePaths[0]);
+        });
+});

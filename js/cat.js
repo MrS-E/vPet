@@ -82,13 +82,7 @@ class Cat{
     }
 
     eat(){
-        window.dialog.showOpenDialog({properties: ['openFile']})
-            .then((result) => {
-                if(result === undefined) return;
-                if(!window.fs.existsSync(result.filePaths[0])) return;
-                window.fs.unlinkSync(result.filePaths[0]);
-                this.feelings.hunger = 0;
-            });
+        window.ipcRenderer.send('eatFile');
     }
 
     play(){
