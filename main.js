@@ -1,5 +1,4 @@
-const { app, BrowserWindow, screen, ipcMain } = require('electron');
-const {moveWindowSmoothly, moveCursorSmoothly} = require("./js/movement");
+const { app, BrowserWindow, screen, ipcMain, dialog } = require('electron');
 const {moveWindowSmoothly, moveCursorSmoothly, steelCursorSmoothly, huntCursor} = require("./js/movement");
 const path = require("path");
 const robot = require("@jitsi/robotjs");

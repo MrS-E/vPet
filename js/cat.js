@@ -41,7 +41,9 @@ class Cat{
             fearful: 'meow.mp3',
         }
 
-        //increase hunger and boredom
+        //TODO replace listeners and intervals with brainsAI
+        this.setMovemntInterval()
+
         setInterval(() => {
             this.feelings.hunger += 2;
             this.feelings.boredom += 5;
@@ -109,10 +111,28 @@ class Cat{
     }
 
     move() {
-        const x = getRandomInt(-100, 100);
-        const y = getRandomInt(-100, 100);
-        const distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-        setTimeout(() => window.ipcRenderer.send('moveWindow', [x, y, distance]), distance + 1000);
+        document.getElementById("image-container").src = "assets/cat_move.gif";
+
+        const x = getRandomInt(-200, 200);
+        const y = getRandomInt(-200, 200);
+
+        if (x >= 0) document.getElementById("image-container").style.transform = "scaleX(1)";
+        if (x < 0) document.getElementById("image-container").style.transform = "scaleX(-1)";
+
+        setTimeout(()=>{ //somehow requestAnimationFrame is not working
+            window.ipcRenderer.sendSync('moveWindow', [x, y]);
+            document.getElementById("image-container").src = "assets/cat.png";
+        }, 50);
+
+        return true;
+    }
+    setMovemntInterval(){
+        this.movement = setInterval(async () => {
+            this.move();
+        }, 500);
+    }
+    removeMovementInterval(){
+        clearInterval(this.movement)
     }
 }
 

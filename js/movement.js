@@ -1,29 +1,36 @@
 
-function moveWindowSmoothly(window, targetX=1000, targetY=1000, duration=5000) {
+function moveWindowSmoothly(window, targetX=1000, targetY=1000) {
     //good speed = 148/1000 => 148px/second
 
-    const currentPosition = window.getPosition();
-    const deltaX = targetX - currentPosition[0];
-    const deltaY = targetY - currentPosition[1];
+    return new Promise((resolve, reject) => {
 
-    const startTime = Date.now();
+        const currentPosition = window.getPosition();
+        let deltaX = targetX - currentPosition[0];
+        let deltaY = targetY - currentPosition[1];
 
-    function updateWindowPosition() {
-        const currentTime = Date.now();
-        const currentTimeDiff = currentTime - startTime;
-        const progress = Math.min(1, (currentTime - startTime) / duration);
+        if(deltaX%2!==0) deltaX+=1;
+        if(deltaY%2!==0) deltaY+=1;
 
-        const newX = currentPosition[0] + deltaX * progress;
-        const newY = currentPosition[1] + deltaY * progress;
+        function updateWindowPosition(progress){
+            const currentPosition = window.getPosition();
+            let moveX = deltaX>0?(2*progress<deltaX?2:0):(-2*progress>deltaX?-2:0);
+            let moveY = deltaY>0?(2*progress<deltaY?2:0):(-2*progress>deltaY?-2:0);
 
-        window.setPosition(Math.round(newX), Math.round(newY));
+            const newX = currentPosition[0] + moveX;
+            const newY = currentPosition[1] + moveY;
 
-        if (progress < 1) {
-            setTimeout(updateWindowPosition, 16); // 60 frames per second
+            window.setPosition(newX, newY);
+
+            if (moveY!==0 || moveX!==0) {
+                setTimeout(updateWindowPosition, 16, progress+1); // 60 frames per second
+            }else{
+                resolve();
+            }
         }
-    }
 
-    updateWindowPosition();
+        updateWindowPosition(1);
+
+    });
 }
 
 function moveCursorSmoothly(mouse, targetX=1000, targetY=1000, duration=5000) {
