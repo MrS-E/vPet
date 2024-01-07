@@ -32,7 +32,7 @@ class Cat{
             },
         };
 
-        this.meow = { //TODO change sounds
+        this.meowType = { //TODO change sounds
             normal: 'meow.mp3',
             needy: 'meow.mp3',
             happy: 'meow.mp3',
@@ -54,7 +54,7 @@ class Cat{
             if(getRandomInt(1, 20)>=15){
                 this.meow();
             }
-        }, 1000);
+        }, 3000);
 
         this.feelings.boredomListener = async (val)=>{
             if(val > 100){
@@ -78,7 +78,8 @@ class Cat{
         }
     }
     meow(type="normal"){
-        window.sound.play(this.meow[type]);
+        console.log("meow");
+        window.ipcRenderer.send('meow', this.meowType[type]);
     }
 
     eat(){
