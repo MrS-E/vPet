@@ -8,8 +8,8 @@ const fs = require("fs");
 let win;
 function createWindow() {
     win = new BrowserWindow({
-        width: 600,
-        height: 600,
+        width: 200,
+        height: 200,
         transparent: true,
         frame: false,
         resizable: false,
@@ -24,7 +24,7 @@ function createWindow() {
     });
 
     win.loadFile(path.join(__dirname, "index.html"));
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
