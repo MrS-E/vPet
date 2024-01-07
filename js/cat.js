@@ -91,8 +91,6 @@ class Cat{
         const x = getRandomInt(0, 500);
         const y = getRandomInt(-500, 500);
 
-        this.meow("happy")
-
         document.getElementById("image-container").style.transform = "scaleX(1)";
 
         setTimeout(()=> {
