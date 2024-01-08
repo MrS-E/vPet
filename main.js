@@ -84,10 +84,21 @@ ipcMain.on('meow', async (event, args) => {
     sound.play(path.join(__dirname, "assets/meow/", args));
 });
 
-ipcMain.on('eatFile', async (event, args) => {
+ipcMain.handle('eatFile', async (event, args) => {
     console.log("eat");
-    const desktopPath = path.join(require('os').homedir(), 'Desktop');
+    let desktopPath = path.join(require('os').homedir(), 'Desktop');
+    if (!fs.existsSync(desktopPath)){
+        desktopPath = null;
+        fs.readdirSync(require('os').homedir(), {withFileTypes: true})
+            .filter(file=> file.isDirectory())
+            .filter(file => {
+                for(let d of ["Schreibtisch"]) if(file.name === d) desktopPath= path.join(require('os').homedir(), file.name);
+            })
+        //if(desktopPath===null) desktopPath = fs.readdirSync(require('os').homedir(), {withFileTypes: true}).filter(file=> file.isDirectory())[0]
+        if(desktopPath===null) return "death";
 
+    }
+    console.log(desktopPath);
     function listFiles(directoryPath) {
         return new Promise((resolve, reject) => {
             fs.readdir(directoryPath, {withFileTypes: true}, (err, items) => {
@@ -95,17 +106,22 @@ ipcMain.on('eatFile', async (event, args) => {
                     //console.error('Error reading directory:', err);
                     reject(err);
                 }
-
                 items.filter(item => item.isFile())
                 resolve(items);
             });
         });
     }
 
-    listFiles(desktopPath).then((items) => {
-        const item = items[Math.floor(Math.random() * items.length)];
-        console.log(item.name);
-        const filePath = path.join(desktopPath, item.name);
-        fs.unlinkSync(filePath);
-    });
+
+    const items = await listFiles(desktopPath);
+    if(items===null||items===undefined||items.length === 0) {
+        console.log("-----------------------------------")
+        console.log("death")
+        console.log("-----------------------------------")
+        return "death";
+    }
+    const item = items[Math.floor(Math.random() * items.length)];
+    const filePath = path.join(desktopPath, item.name);
+    fs.unlinkSync(filePath);
+    return filePath;
 });

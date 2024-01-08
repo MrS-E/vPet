@@ -43,7 +43,7 @@ class Cat{
         this.setMovementInterval()
 
         setInterval(() => {
-            this.feelings.hunger += 1;
+            this.feelings.hunger += 50;
             this.feelings.boredom += 5;
             this.feelings.sleepiness += 2;
         }, 6000);
@@ -82,7 +82,19 @@ class Cat{
 
     eat(){
         this.meow("happy")
-        window.ipcRenderer.send('eatFile');
+        window.ipcRenderer.invoke('eatFile')
+            .then((result) => {
+                if(result === "death"){
+                    this.removeMovementInterval()
+                    this.play = null
+                    this.hunt = null
+                    this.sleep = null
+                    this.move = null
+                    setTimeout(()=>{
+                        document.getElementById("image-container").src="assets/death.jpg"
+                    }, 10000)
+                }
+            });
         this.feelings.hunger = 0;
     }
 
@@ -111,7 +123,7 @@ class Cat{
         this.feelings.sleepiness += 20;
     }
 
-    sleep(){ //TODO replace sleep image
+    sleep(){ //TODO replace sleep image //FIXME sleeping bug
         document.getElementById("image-container").src = "assets/cat_sleep.gif";
         this.meow("sad")
         this.removeMovementInterval()
