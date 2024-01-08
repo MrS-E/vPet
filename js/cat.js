@@ -44,8 +44,8 @@ class Cat{
 
         this.feelingsInterval = setInterval(() => {
             this.feelings.hunger += 2;
-            this.feelings.boredom += 50;
-            this.feelings.sleepiness += 2;
+            this.feelings.boredom += 5;
+            this.feelings.sleepiness += 10;
         }, 6000);
 
         this.meowInterval = setInterval(() => {
@@ -71,7 +71,8 @@ class Cat{
         this.feelings.sleepinessListener = (val)=>{
             if(val > 100){
                 this.meow("sad");
-                this.sleep();
+                //this.sleep();
+                this.feelings.sleepiness = 0;
             }
         }
     }
@@ -106,17 +107,18 @@ class Cat{
         this.removeMovementInterval()
         const x = getRandomInt(0, 500);
         const y = getRandomInt(-500, 500);
-        document.getElementById("image-container").src = "assets/cat_move.gif";
+        //document.getElementById("image-container").src = "assets/cat_move.gif";
         document.getElementById("image-container").style.transform = "scaleX(1)";
 
         setTimeout(()=> {
             window.ipcRenderer.sendSync('steelCursor', [x, y]);
             this.setMovementInterval()
-            document.getElementById("image-container").src = "assets/cat.png";
+            //document.getElementById("image-container").src = "assets/cat.png";
         }, 50);
 
         this.feelings.hunger += 10;
         this.feelings.boredom = 0;
+        this.feelings.sleepiness += 10;
     }
 
     hunt(){
@@ -126,23 +128,23 @@ class Cat{
             window.ipcRenderer.sendSync('huntCursor');
             this.feelings.boredom = 0;
             this.feelings.sleepiness += 20;
-            document.getElementById("image-container").src = "assets/cat.png";
-        }, 50);
+            document.getElementById("image-container").src = "assets/cat_move.gif";
+        }, 55);
     }
 
-    sleep(){ //TODO replace sleep image //FIXME sleeping bug
+    sleep(){ //TODO replace sleep image //FIXME not working correctly
         document.getElementById("image-container").src = "assets/cat_sleep.gif";
         this.meow("sad")
         this.removeMovementInterval()
         this.feelings.sleepiness = 0;
         setTimeout(() => {
-            document.getElementById("image-container").src = "assets/cat.png";
+            document.getElementById("image-container").src = "assets/cat_move.gif";
             this.setMovementInterval()
         }, 90000);
     }
 
     move() {
-        document.getElementById("image-container").src = "assets/cat_move.gif";
+        //document.getElementById("image-container").src = "assets/cat_move.gif";
 
         const x = getRandomInt(-200, 200);
         const y = getRandomInt(-200, 200);
@@ -152,7 +154,7 @@ class Cat{
 
         setTimeout(()=>{ //somehow requestAnimationFrame is not working
             window.ipcRenderer.sendSync('moveWindow', [x, y]) //TODO move to background thread (how?)
-            document.getElementById("image-container").src = "assets/cat.png";
+            //document.getElementById("image-container").src = "assets/cat.png";
         }, 50);
 
         return true;

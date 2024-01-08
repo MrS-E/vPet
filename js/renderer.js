@@ -5,4 +5,5 @@ document.getElementById("image-container").addEventListener("click", () => {
     cat.play();
 })
 
+document.getElementById("image-container").src = "assets/cat_move.gif";
 
