@@ -107,6 +107,8 @@ function huntCursor(robot, window) {
                 const currentPosition = window.getPosition();
                 const {x, y} = robot.getMousePos()
 
+                console.log(x, y);
+
                 const deltaX = x - (currentPosition[0] + (1870 / 2469 * window.getSize()[0]));
                 const deltaY = y - (currentPosition[1] + (290 / 631 * window.getSize()[1]));
 
@@ -124,11 +126,12 @@ function huntCursor(robot, window) {
                 const newX = Math.round(currentPosition[0] + moveX);
                 const newY = Math.round(currentPosition[1] + moveY);
 
-                //console.log(moveX, moveY);
+                console.log(moveX, moveY);
 
                 window.setPosition(newX, newY);
 
-                if (moveY > 6 || moveX > 6) {
+                if (!((moveX < 6 && moveX > -6) && (moveY < 6 && moveY > -6))) {
+                    console.log("continue");
                     setTimeout(updateWindowPosition, 16, progress + 1); // 60 frames per second
                 } else {
                     resolve();
@@ -137,8 +140,9 @@ function huntCursor(robot, window) {
             updateWindowPosition(1);
         })
             .then(()=>  window.getPosition())
-        .then((pos) => steelCursorSmoothly(robot, window, pos[0]+Math.floor(Math.random() * (100 + 1)), pos[1]+Math.floor(Math.random() * (100 - -100 + 1)) + -100))
-        .then(() => resolve());
+            .then((pos) =>
+                steelCursorSmoothly(robot, window, pos[0]+Math.floor(Math.random() * (500 + 1)), pos[1]+Math.floor(Math.random() * (500 - -500 + 1)) + -500))
+            .then(() => resolve());
     });
 
 }
