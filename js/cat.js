@@ -42,13 +42,13 @@ class Cat{
         //TODO replace listeners and intervals with brainsAI
         this.setMovementInterval()
 
-        setInterval(() => {
-            this.feelings.hunger += 50;
+        this.feelingsInterval = setInterval(() => {
+            this.feelings.hunger += 2;
             this.feelings.boredom += 5;
             this.feelings.sleepiness += 2;
         }, 6000);
 
-        setInterval(() => {
+        this.meowInterval = setInterval(() => {
             if(getRandomInt(1, 20)>=15){
                 this.meow();
             }
@@ -85,13 +85,17 @@ class Cat{
         window.ipcRenderer.invoke('eatFile')
             .then((result) => {
                 if(result === "death"){
-                    this.removeMovementInterval()
-                    this.play = null
-                    this.hunt = null
-                    this.sleep = null
-                    this.move = null
+                    clearInterval(this.movement)
+                    clearInterval(this.feelingsInterval)
+                    clearInterval(this.meowInterval)
+                    this.play = ()=>{}
+                    this.meow = ()=>{}
+                    this.hunt = ()=>{}
+                    this.sleep = ()=>{}
+                    this.move = ()=>{}
                     setTimeout(()=>{
-                        document.getElementById("image-container").src="assets/death.jpg"
+                        document.getElementById("image-container").style.transform = "scaleX(1)";
+                        document.getElementById("image-container").src="assets/death.png"
                     }, 10000)
                 }
             });
@@ -131,7 +135,7 @@ class Cat{
         setTimeout(() => {
             document.getElementById("image-container").src = "assets/cat.png";
             this.setMovementInterval()
-        }, 100000);
+        }, 90000);
     }
 
     move() {

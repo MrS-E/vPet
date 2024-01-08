@@ -106,8 +106,7 @@ ipcMain.handle('eatFile', async (event, args) => {
                     //console.error('Error reading directory:', err);
                     reject(err);
                 }
-                items.filter(item => item.isFile())
-                resolve(items);
+                resolve(items.filter(item => item.isFile()));
             });
         });
     }
