@@ -65,7 +65,7 @@ function moveWindowSmoothly(window, targetX=1000, targetY=1000) {
     });
 }*/
 
-function steelCursorSmoothly(mouse, window, targetX=1000, targetY=1000 ) {
+function steelCursorSmoothly(mouse, window, targetX=1000, targetY=1000, offsetX=1870 / 2469, offsetY=290 / 631 ) {
     return new Promise((resolve) => {
 
         mouse.setMouseDelay(2);
@@ -86,7 +86,7 @@ function steelCursorSmoothly(mouse, window, targetX=1000, targetY=1000 ) {
             const newY = currentPosition[1] + moveY;
 
             window.setPosition(newX, newY);
-            mouse.moveMouse(newX + (1870 / 2469 * window.getSize()[0]), newY + (290 / 631 * window.getSize()[1]));
+            mouse.moveMouse(newX + ( offsetX* window.getSize()[0]), newY + (offsetY * window.getSize()[1]));
 
             if (moveY!==0 || moveX!==0) {
                 setTimeout(updateWindowPosition, 8, progress+1); // 120 frames per second
@@ -102,15 +102,14 @@ function steelCursorSmoothly(mouse, window, targetX=1000, targetY=1000 ) {
 
 function huntCursor(robot, window) {
     return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
         new Promise((resolve,) => {
             function updateWindowPosition(progress) {
                 const currentPosition = window.getPosition();
                 const {x, y} = robot.getMousePos()
 
-                console.log(x, y);
-
-                const deltaX = x - (currentPosition[0] + (1870 / 2469 * window.getSize()[0]));
-                const deltaY = y - (currentPosition[1] + (290 / 631 * window.getSize()[1]));
+                const deltaX = x - (currentPosition[0] + (1 / 2 * window.getSize()[0]));
+                const deltaY = y - (currentPosition[1] + (80 / 119 * window.getSize()[1]));
 
                 let moveX;
                 let moveY;
@@ -126,22 +125,23 @@ function huntCursor(robot, window) {
                 const newX = Math.round(currentPosition[0] + moveX);
                 const newY = Math.round(currentPosition[1] + moveY);
 
-                console.log(moveX, moveY);
-
                 window.setPosition(newX, newY);
 
                 if (!((moveX < 6 && moveX > -6) && (moveY < 6 && moveY > -6))) {
-                    console.log("continue");
                     setTimeout(updateWindowPosition, 16, progress + 1); // 60 frames per second
                 } else {
                     resolve();
                 }
             }
+
             updateWindowPosition(1);
         })
             .then(()=>  window.getPosition())
             .then((pos) =>
                 steelCursorSmoothly(robot, window, pos[0]+Math.floor(Math.random() * (500 + 1)), pos[1]+Math.floor(Math.random() * (500 - -500 + 1)) + -500))
+
+            .then(() => window.getPosition())
+            .then((pos) => steelCursorSmoothly(robot, window, pos[0] + Math.floor(Math.random() * (500 + 1)), pos[1] + Math.floor(Math.random() * (500 - -500 + 1)) + -500, 1 / 2, 80 / 119))
             .then(() => resolve());
     });
 

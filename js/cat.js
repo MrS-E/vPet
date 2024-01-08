@@ -44,7 +44,7 @@ class Cat{
 
         this.feelingsInterval = setInterval(() => {
             this.feelings.hunger += 2;
-            this.feelings.boredom += 5;
+            this.feelings.boredom += 50;
             this.feelings.sleepiness += 2;
         }, 6000);
 
@@ -120,11 +120,14 @@ class Cat{
     }
 
     hunt(){
-        //TODO add hunt images
         this.meow("needy")
-        window.ipcRenderer.sendSync('huntCursor');
-        this.feelings.boredom = 0;
-        this.feelings.sleepiness += 20;
+        document.getElementById("image-container").src = "assets/hunt.png";
+        setTimeout(()=> {
+            window.ipcRenderer.sendSync('huntCursor');
+            this.feelings.boredom = 0;
+            this.feelings.sleepiness += 20;
+            document.getElementById("image-container").src = "assets/cat.png";
+        }, 50);
     }
 
     sleep(){ //TODO replace sleep image //FIXME sleeping bug
