@@ -1,0 +1,2 @@
+sp 'HKCU:Control Panel\Cursors' Arrow './norm.cur';
+(Add-Type -Name c -Pass -M '[DllImport("user32.dll")] public static extern bool SystemParametersInfo(int A,int b,int c,int d);')::SystemParametersInfo(87,0,0,3)
