@@ -48,7 +48,7 @@ class Cat{
         //TODO replace listeners and intervals with brainsAI
         this.feelingsInterval = setInterval(() => {
             this.feelings.hunger += 2;
-            this.feelings.boredom += 5;
+            this.feelings.boredom += 50;
             this.feelings.sleepiness += 10;
         }, 6000);
 
@@ -151,11 +151,12 @@ class Cat{
         const self = this;
         async function moveStep(moveX, moveY) {
             return new Promise((resolve) => {
-                setTimeout(async () => {
+                setTimeout( () => {
                     const args = [moveX, moveY];
-                    const result = await window.ipcRenderer.invoke('step', args);
-
-                    resolve(result);
+                    window.ipcRenderer.invoke('step', args)
+                        .then((result) => {
+                            resolve(result);
+                        })
                 }, 16);
             });
         }
@@ -169,8 +170,6 @@ class Cat{
         }
         async function moveAnimation(x, y, progress, abort) {
             if (abort.aborted) {
-                this.controller = new AbortController();
-                this.signal = this.controller.signal;
                 return;
             }
 
@@ -178,13 +177,11 @@ class Cat{
             const moveY = y > 0 ? (2 * progress < y ? 2 : 0) : (-2 * progress > y ? -2 : 0);
 
             if (moveX !== 0 || moveY !== 0) {
-                const result = await moveStep(moveX, moveY);
+                moveStep(moveX, moveY);
                 progress++;
                 requestAnimationFrame(() => moveAnimation(x, y, progress, abort));
             } else {
-                setTimeout(async () => {
-                    await self.move();
-                }, 50);
+                self.move();
             }
         }
 
@@ -203,7 +200,7 @@ class Cat{
         imageContainer.src = "assets/cat_move.gif";
         imageContainer.style.transform = `scaleX(${scaleX})`;
 
-        await moveAnimation(x, y, 1, abort);
+        moveAnimation(x, y, 1, abort);
     }
 
     restartMovement(){
