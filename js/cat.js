@@ -147,63 +147,68 @@ class Cat{
         }, 90000);
     }
 
-    move(abort = this.signal) { //FIXME the cat ends up in the bottom right corner
+    async move(abort = this.signal) { //FIXME the cat ends up in the bottom right corner
         let x = getRandomInt(-200, 200);
         let y = getRandomInt(-200, 200);
         console.log("move", x, y);
-        let progress = 1;
+        let further = false
 
 
-        if(x%2!==0) x+=1;
-        if(y%2!==0) y+=1;
+        if (x % 2 !== 0) x += 1;
+        if (y % 2 !== 0) y += 1;
 
         document.getElementById("image-container").src = "assets/cat_move.gif";
         if (x >= 0) {
             document.getElementById("image-container").style.transform = "scaleX(1)";
-        }else {
+        } else {
             document.getElementById("image-container").style.transform = "scaleX(-1)";
         }
 
-        function step(){
+        async function step(progress) {
             if (abort.aborted) {
+                return false;
+            }
+            if ((x > 0 ? (2 * progress < x ? 2 : 0) : (-2 * progress > x ? -2 : 0)) === 0 &&
+                (y > 0 ? (2 * progress < y ? 2 : 0) : (-2 * progress > y ? -2 : 0)) === 0) {
+                console.log("done");
+                return true;
+            }
+
+            let args = [
+                x > 0 ? (2 * progress < x ? 2 : 0) : (-2 * progress > x ? -2 : 0),
+                y > 0 ? (2 * progress < y ? 2 : 0) : (-2 * progress > y ? -2 : 0)
+            ];
+
+            console.log(args);
+            await sleep(16);
+            let r = await window.ipcRenderer.invoke('step', args);
+            if (r) {
+                /*
+                this.controller.abort();
+                this.play();
+                */
+            }
+            progress++;
+            return step(progress + 1);
+        }
+
+        further = await step(1)
+
+        console.log(further)
+        if (further) {
+
+            if (abort.aborted) {
+                this.controller = new AbortController();
+                this.signal = this.controller.signal;
                 return;
             }
-            if((x>0?(2*progress<x?2:0):(-2*progress>x?-2:0))===0 && (y>0?(2*progress<y?2:0):(-2*progress>y?-2:0))===0) return;
-            console.log(progress);
+
+            //document.getElementById("image-container").src = "assets/cat.png";
             setTimeout(() => {
-                let args = [
-                    x>0?(2*progress<x?2:0):(-2*progress>x?-2:0),
-                    y>0?(2*progress<y?2:0):(-2*progress>y?-2:0)
-                ];
-                console.log(args);
-                window.ipcRenderer.invoke('step', args)
-                    .then((r)=>{
-                        if(r){
-                            /*
-                            this.controller.abort();
-                            this.play();
-                             */
-                        }
-                        progress++;
-                        step()
-                    })
-            }, 16);
+                further = false;
+                this.move();
+            }, 50);
         }
-
-        step()
-
-        console.log("done");
-
-        if (abort.aborted) {
-            this.controller = new AbortController();
-            this.signal = this.controller.signal;
-            return;
-        }
-
-        //document.getElementById("image-container").src = "assets/cat.png";
-        setTimeout(() => {
-            this.move();
-        }, 50);
     }
 
     restartMovement(){
@@ -216,4 +221,8 @@ class Cat{
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
