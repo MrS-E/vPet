@@ -31,6 +31,8 @@ class Cat{
                 return this._sleepiness;
             },
         };
+        this.controller = new AbortController();
+        this.signal = this.controller.signal;
 
         this.meowType = {
             happy: 'meow_happy.mp3',
@@ -39,9 +41,11 @@ class Cat{
             sad: 'meow_sad.mp3',
         }
 
-        //TODO replace listeners and intervals with brainsAI
-        this.setMovementInterval()
+        setTimeout(()=>{
+            this.restartMovement();
+        }, 100)
 
+        //TODO replace listeners and intervals with brainsAI
         this.feelingsInterval = setInterval(() => {
             this.feelings.hunger += 2;
             this.feelings.boredom += 5;
@@ -71,7 +75,7 @@ class Cat{
         this.feelings.sleepinessListener = (val)=>{
             if(val > 100){
                 this.meow("sad");
-                //this.sleep();
+                //this.sleep(); //need fixing
                 this.feelings.sleepiness = 0;
             }
         }
@@ -86,7 +90,7 @@ class Cat{
         window.ipcRenderer.invoke('eatFile')
             .then((result) => {
                 if(result === "death"){
-                    clearInterval(this.movement)
+                    this.controller.abort()
                     clearInterval(this.feelingsInterval)
                     clearInterval(this.meowInterval)
                     this.play = ()=>{}
@@ -104,7 +108,7 @@ class Cat{
     }
 
     play(){
-        this.removeMovementInterval()
+        this.controller.abort();
         const x = getRandomInt(0, 500);
         const y = getRandomInt(-500, 500);
         //document.getElementById("image-container").src = "assets/cat_move.gif";
@@ -112,7 +116,7 @@ class Cat{
 
         setTimeout(()=> {
             window.ipcRenderer.sendSync('steelCursor', [x, y]);
-            this.setMovementInterval()
+            this.restartMovement();
             //document.getElementById("image-container").src = "assets/cat.png";
         }, 50);
 
@@ -135,38 +139,68 @@ class Cat{
     sleep(){ //TODO replace sleep image //FIXME not working correctly
         document.getElementById("image-container").src = "assets/cat_sleep.gif";
         this.meow("sad")
-        this.removeMovementInterval()
+        this.controller.abort();
         this.feelings.sleepiness = 0;
         setTimeout(() => {
             document.getElementById("image-container").src = "assets/cat_move.gif";
-            this.setMovementInterval()
+            this.restartMovement();
         }, 90000);
     }
 
-    move() {
-        //document.getElementById("image-container").src = "assets/cat_move.gif";
+    async move(abort = this.signal) { //FIXME the cat ends up in the bottom right corner
+        let x = getRandomInt(-200, 200);
+        let y = getRandomInt(-200, 200);
+        console.log(x, y);
+        let progress = 1;
 
-        const x = getRandomInt(-200, 200);
-        const y = getRandomInt(-200, 200);
+        if(x%2!==0) x+=1;
+        if(y%2!==0) y+=1;
 
-        if (x >= 0) document.getElementById("image-container").style.transform = "scaleX(1)";
-        if (x < 0) document.getElementById("image-container").style.transform = "scaleX(-1)";
+        document.getElementById("image-container").src = "assets/cat_move.gif";
+        if (x >= 0) {
+            document.getElementById("image-container").style.transform = "scaleX(1)";
+        }else {
+            document.getElementById("image-container").style.transform = "scaleX(-1)";
+        }
 
-        setTimeout(()=>{ //somehow requestAnimationFrame is not working
-            window.ipcRenderer.sendSync('moveWindow', [x, y]) //TODO move to background thread (how?)
-            //document.getElementById("image-container").src = "assets/cat.png";
-        }, 50);
+        while (2 * progress < x || 2 * progress < y) {
+            if (abort.aborted) {
+                this.controller = new AbortController();
+                this.signal = this.controller.signal;
+                return;
+            }
+            await new Promise((resolve) => {
+                setTimeout(() => {
+                    let args = [
+                        x>0?(2*progress<x?2:0):(-2*progress>x?-2:0),
+                        y>0?(2*progress<y?2:0):(-2*progress>y?-2:0)
+                    ];
 
-        return true;
-    }
-    setMovementInterval(){ //fixme the cat is not responsive while moving
-        this.movement = setInterval(async () => {
+                    window.ipcRenderer.invoke('step', args)
+                        .then(r => {
+                            if (r) {
+                                //this.controller.abort();
+                                //this.play();
+                                //console.log("play");
+                            }
+                            resolve();
+                        });
+                }, 16);
+            });
+            progress++;
+        }
+
+        //document.getElementById("image-container").src = "assets/cat.png";
+        setTimeout(() => {
             this.move();
-        }, 500);
-
+        }, 50);
     }
-    removeMovementInterval(){
-        clearInterval(this.movement)
+
+    restartMovement(){
+        this.controller.abort();
+        this.controller = new AbortController();
+        this.signal = this.controller.signal;
+        this.move();
     }
 }
 

@@ -8,7 +8,7 @@ const fs = require("fs");
 let win;
 function createWindow() {
     win = new BrowserWindow({
-        width: 200,
+        width: 400,
         height: 200,
         transparent: true,
         frame: false,
@@ -24,9 +24,8 @@ function createWindow() {
     });
 
     win.loadFile(path.join(__dirname, "index.html"));
-    /*win.setIgnoreMouseEvents(true) FIXME maybe move cat into canvas and use this
-    win.maximize();*/
-    //win.webContents.openDevTools();
+
+    win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
@@ -42,6 +41,20 @@ app.on('activate', () => {
         createWindow();
     }
 });
+ipcMain.handle("step", (event, args) =>{
+    console.log("step");
+    const {width, height} = screen.getPrimaryDisplay().size;
+    const position = win.getPosition();
+    const mouse = robot.getMousePos();
+    if (position[0] + args[0] < 0 || position[0] + args[0] > width - win.getSize()[0]) {
+        args[0] = 0;
+    }
+    if (position[1] + args[1] < 0 || position[1] + args[1] > height - win.getSize()[1]) {
+        args[1] = 0;
+    }
+    win.setPosition(position[0] + args[0], position[1] + args[1]);
+    return (win.getPosition()[0] < mouse.x && win.getPosition()[0] + win.getSize()[0] > mouse.x) && (win.getPosition()[1] < mouse.y && win.getPosition()[1] + win.getSize()[1] > mouse.y);
+})
 
 ipcMain.on('moveWindow', async (event, args) => {
     console.log("move");
