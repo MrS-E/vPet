@@ -163,47 +163,44 @@ class Cat{
             document.getElementById("image-container").style.transform = "scaleX(-1)";
         }
 
-        while (2 * progress < x || 2 * progress < y) {
-            if (abort.aborted) {
-                this.controller = new AbortController();
-                this.signal = this.controller.signal;
-                return;
-            }
-            await new Promise((resolve) => {
-                setTimeout(() => {
-                    let args = [
-                        x>0?(2*progress<x?2:0):(-2*progress>x?-2:0),
-                        y>0?(2*progress<y?2:0):(-2*progress>y?-2:0)
-                    ];
-
-                    window.ipcRenderer.invoke('step', args)
+        this.worker = new Worker('js/worker.js');
+        this.worker.onmessage = (e) => {
+            switch (e.data[0]) {
+                case "move":
+                    window.ipcRenderer.invoke('step', e.data[1])
                         .then(r => {
                             if (r) {
                                 //this.controller.abort();
                                 //this.play();
                                 //console.log("play");
                             }
-                            resolve();
+                            progress = e.data[2]
+                            this.worker.postMessage(["move", {x: x, y: y, progress: progress + 1}]);
                         });
-                }, 16);
-            });
-            progress++;
+                    break;
+                case "done":
+                    this.worker.terminate();
+                    this.restartMovement();
+                    break;
+            }
         }
+        this.worker.postMessage(["move", {x: x, y: y, progress: progress}]);
 
-        //document.getElementById("image-container").src = "assets/cat.png";
-        setTimeout(() => {
-            this.move();
-        }, 50);
+    }
+
+    stopMovement(){
+        this.worker.terminate();
     }
 
     restartMovement(){
-        this.controller.abort();
-        this.controller = new AbortController();
-        this.signal = this.controller.signal;
         this.move();
     }
 }
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+async function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
