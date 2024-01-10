@@ -150,7 +150,7 @@ class Cat{
     async move(abort = this.signal) { //FIXME the cat ends up in the bottom right corner
         let x = getRandomInt(-200, 200);
         let y = getRandomInt(-200, 200);
-        console.log(x, y);
+        //console.log(x, y);
         let progress = 1;
 
         if(x%2!==0) x+=1;
@@ -163,7 +163,7 @@ class Cat{
             document.getElementById("image-container").style.transform = "scaleX(-1)";
         }
 
-        while (2 * progress < x || 2 * progress < y) {
+        while (x>0?(2*progress<x?2:0):(-2*progress>x?-2:0)!==0 && y>0?(2*progress<y?2:0):(-2*progress>y?-2:0)!==0) {
             if (abort.aborted) {
                 this.controller = new AbortController();
                 this.signal = this.controller.signal;
@@ -179,7 +179,7 @@ class Cat{
                     window.ipcRenderer.invoke('step', args)
                         .then(r => {
                             if (r) {
-                                //this.controller.abort();
+                                //this.controller.abort(); can't do that without moving the cursor away from the cat
                                 //this.play();
                                 //console.log("play");
                             }

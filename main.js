@@ -42,7 +42,6 @@ app.on('activate', () => {
     }
 });
 ipcMain.handle("step", (event, args) =>{
-    console.log("step");
     const {width, height} = screen.getPrimaryDisplay().size;
     const position = win.getPosition();
     const mouse = robot.getMousePos();
