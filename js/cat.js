@@ -147,53 +147,63 @@ class Cat{
         }, 90000);
     }
 
-    async move(abort = this.signal) { //FIXME the cat ends up in the bottom right corner
-        let x = getRandomInt(-200, 200);
-        let y = getRandomInt(-200, 200);
-        //console.log(x, y);
-        let progress = 1;
+    async move(abort = this.signal) {
+        const self = this;
+        async function moveStep(moveX, moveY) {
+            return new Promise((resolve) => {
+                setTimeout(async () => {
+                    const args = [moveX, moveY];
+                    const result = await window.ipcRenderer.invoke('step', args);
 
-        if(x%2!==0) x+=1;
-        if(y%2!==0) y+=1;
-
-        document.getElementById("image-container").src = "assets/cat_move.gif";
-        if (x >= 0) {
-            document.getElementById("image-container").style.transform = "scaleX(1)";
-        }else {
-            document.getElementById("image-container").style.transform = "scaleX(-1)";
+                    resolve(result);
+                }, 16);
+            });
         }
-
-        while (x>0?(2*progress<x?2:0):(-2*progress>x?-2:0)!==0 && y>0?(2*progress<y?2:0):(-2*progress>y?-2:0)!==0) {
+        async function preloadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = resolve;
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
+        async function moveAnimation(x, y, progress, abort) {
             if (abort.aborted) {
                 this.controller = new AbortController();
                 this.signal = this.controller.signal;
                 return;
             }
-            await new Promise((resolve) => {
-                setTimeout(() => {
-                    let args = [
-                        x>0?(2*progress<x?2:0):(-2*progress>x?-2:0),
-                        y>0?(2*progress<y?2:0):(-2*progress>y?-2:0)
-                    ];
 
-                    window.ipcRenderer.invoke('step', args)
-                        .then(r => {
-                            if (r) {
-                                //this.controller.abort(); can't do that without moving the cursor away from the cat
-                                //this.play();
-                                //console.log("play");
-                            }
-                            resolve();
-                        });
-                }, 16);
-            });
-            progress++;
+            const moveX = x > 0 ? (2 * progress < x ? 2 : 0) : (-2 * progress > x ? -2 : 0);
+            const moveY = y > 0 ? (2 * progress < y ? 2 : 0) : (-2 * progress > y ? -2 : 0);
+
+            if (moveX !== 0 || moveY !== 0) {
+                const result = await moveStep(moveX, moveY);
+                progress++;
+                requestAnimationFrame(() => moveAnimation(x, y, progress, abort));
+            } else {
+                setTimeout(async () => {
+                    await self.move();
+                }, 50);
+            }
         }
 
-        //document.getElementById("image-container").src = "assets/cat.png";
-        setTimeout(() => {
-            this.move();
-        }, 50);
+
+        await preloadImage("assets/cat_move.gif");
+
+        let x = getRandomInt(-200, 200);
+        let y = getRandomInt(-200, 200);
+
+        x = x % 2 !== 0 ? x + 1 : x;
+        y = y % 2 !== 0 ? y + 1 : y;
+
+        const imageContainer = document.getElementById("image-container");
+        const scaleX = x >= 0 ? 1 : -1;
+
+        imageContainer.src = "assets/cat_move.gif";
+        imageContainer.style.transform = `scaleX(${scaleX})`;
+
+        await moveAnimation(x, y, 1, abort);
     }
 
     restartMovement(){
