@@ -8,7 +8,7 @@ const fs = require("fs");
 let win;
 function createWindow() {
     win = new BrowserWindow({
-        width: 400,
+        width: 600,
         height: 200,
         transparent: true,
         frame: false,
@@ -41,8 +41,8 @@ app.on('activate', () => {
         createWindow();
     }
 });
+
 ipcMain.handle("step", (event, args) =>{
-    console.log("step");
     const {width, height} = screen.getPrimaryDisplay().size;
     const position = win.getPosition();
     const mouse = robot.getMousePos();
@@ -52,7 +52,10 @@ ipcMain.handle("step", (event, args) =>{
     if (position[1] + args[1] < 0 || position[1] + args[1] > height - win.getSize()[1]) {
         args[1] = 0;
     }
+
     win.setPosition(position[0] + args[0], position[1] + args[1]);
+    console.log(win.getPosition());
+    //event.returnValue = "done";
     return (win.getPosition()[0] < mouse.x && win.getPosition()[0] + win.getSize()[0] > mouse.x) && (win.getPosition()[1] < mouse.y && win.getPosition()[1] + win.getSize()[1] > mouse.y);
 })
 

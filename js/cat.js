@@ -147,11 +147,12 @@ class Cat{
         }, 90000);
     }
 
-    async move(abort = this.signal) { //FIXME the cat ends up in the bottom right corner
+    move(abort = this.signal) { //FIXME the cat ends up in the bottom right corner
         let x = getRandomInt(-200, 200);
         let y = getRandomInt(-200, 200);
-        console.log(x, y);
+        console.log("move", x, y);
         let progress = 1;
+
 
         if(x%2!==0) x+=1;
         if(y%2!==0) y+=1;
@@ -163,31 +164,40 @@ class Cat{
             document.getElementById("image-container").style.transform = "scaleX(-1)";
         }
 
-        while (2 * progress < x || 2 * progress < y) {
+        function step(){
             if (abort.aborted) {
-                this.controller = new AbortController();
-                this.signal = this.controller.signal;
                 return;
             }
-            await new Promise((resolve) => {
-                setTimeout(() => {
-                    let args = [
-                        x>0?(2*progress<x?2:0):(-2*progress>x?-2:0),
-                        y>0?(2*progress<y?2:0):(-2*progress>y?-2:0)
-                    ];
+            if((x>0?(2*progress<x?2:0):(-2*progress>x?-2:0))===0 && (y>0?(2*progress<y?2:0):(-2*progress>y?-2:0))===0) return;
+            console.log(progress);
+            setTimeout(() => {
+                let args = [
+                    x>0?(2*progress<x?2:0):(-2*progress>x?-2:0),
+                    y>0?(2*progress<y?2:0):(-2*progress>y?-2:0)
+                ];
+                console.log(args);
+                window.ipcRenderer.invoke('step', args)
+                    .then((r)=>{
+                        if(r){
+                            /*
+                            this.controller.abort();
+                            this.play();
+                             */
+                        }
+                        progress++;
+                        step()
+                    })
+            }, 16);
+        }
 
-                    window.ipcRenderer.invoke('step', args)
-                        .then(r => {
-                            if (r) {
-                                //this.controller.abort();
-                                //this.play();
-                                //console.log("play");
-                            }
-                            resolve();
-                        });
-                }, 16);
-            });
-            progress++;
+        step()
+
+        console.log("done");
+
+        if (abort.aborted) {
+            this.controller = new AbortController();
+            this.signal = this.controller.signal;
+            return;
         }
 
         //document.getElementById("image-container").src = "assets/cat.png";
