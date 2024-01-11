@@ -4,6 +4,8 @@ const path = require("path");
 const robot = require("@jitsi/robotjs");
 const { exec } = require('child_process')
 const fs = require("fs");
+const sound = require("./js/main");
+const soundOld = require("sound-play");
 
 let win;
 function createWindow() {
@@ -104,10 +106,15 @@ ipcMain.on('huntCursor', async (event, args) => {
         }
     }
 
+    sound.play(path.join(__dirname, "assets", "meow", "chipi.mp3"), 0.5, true);
+
     console.log("hunt");
 
     runExec(`powershell.exe -Command "sp 'HKCU:Control Panel\\\\Cursors' Arrow './ps/fish.ani'; (Add-Type -Name c -Pass -M '[DllImport(\\"user32.dll\\")] public static extern bool SystemParametersInfo(int A,int b,int c,int d);')::SystemParametersInfo(87,0,0,3)"`);
     await huntCursor(robot, win);
+    sound.stop()
+
+    await new Promise((resolve)=>setTimeout(()=>resolve(), 500))
     runExec(`powershell.exe -Command "sp 'HKCU:Control Panel\\\\Cursors' Arrow './ps/norm.cur'; (Add-Type -Name c -Pass -M '[DllImport(\\"user32.dll\\")] public static extern bool SystemParametersInfo(int A,int b,int c,int d);')::SystemParametersInfo(87,0,0,3)"`);
 
     event.returnValue = "done";
@@ -117,8 +124,12 @@ ipcMain.on('huntCursor', async (event, args) => {
 ipcMain.on('meow', async (event, args) => {
     console.log("meow");
     console.log(path.join(__dirname, "assets", "meow", args))
-    const audio = new Howl({src: ["./assets/meow/meow.mp3"], volume: 1, format: ['mp3']});
-    audio.play();
+    //soundOld.play(path.join(__dirname, "assets", "meow", args))
+    sound.play(path.join(__dirname, "assets", "meow", args))
+    //sound.stop()
+    //new Promise(resolve => setTimeout(resolve, 5000));
+    //sound.stop()
+
 
 });
 

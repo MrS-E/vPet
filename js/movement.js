@@ -1,5 +1,4 @@
 const path = require("path");
-const { PowerShell } = require('node-powershell');
 
 function moveWindowSmoothly(window, targetX=1000, targetY=1000) {
     //good speed = 148/1000 => 148px/second

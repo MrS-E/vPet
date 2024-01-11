@@ -48,7 +48,7 @@ class Cat{
         //TODO replace listeners and intervals with brainsAI
         this.feelingsInterval = setInterval(() => {
             this.feelings.hunger += 2;
-            this.feelings.boredom += 5;
+            this.feelings.boredom += 55;
             this.feelings.sleepiness += 10;
         }, 6000);
 
