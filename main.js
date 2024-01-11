@@ -2,7 +2,7 @@ const { app, BrowserWindow, screen, ipcMain, dialog } = require('electron');
 const {moveWindowSmoothly, moveCursorSmoothly, steelCursorSmoothly, huntCursor} = require("./js/movement");
 const path = require("path");
 const robot = require("@jitsi/robotjs");
-const sound = require("sound-play");
+const {Howl, Howler} = require('howler');
 const fs = require("fs");
 
 let win;
@@ -54,7 +54,6 @@ ipcMain.handle("step", (event, args) =>{
     }
 
     win.setPosition(position[0] + args[0], position[1] + args[1]);
-    console.log(win.getPosition());
     //event.returnValue = "done";
     return (win.getPosition()[0] < mouse.x && win.getPosition()[0] + win.getSize()[0] > mouse.x) && (win.getPosition()[1] < mouse.y && win.getPosition()[1] + win.getSize()[1] > mouse.y);
 })
@@ -91,13 +90,20 @@ ipcMain.on('steelCursor', async (event, args) => {
 
 ipcMain.on('huntCursor', async (event, args) => {
     console.log("hunt");
+    const audio = new Howl({src: [path.join(__dirname, "assets", "meow", "chipi.mp3")], loop: true, volume: 1});
+    audio.play();
     await huntCursor(robot, win);
+    audio.stop();
     event.returnValue = "done";
+
 })
 
 ipcMain.on('meow', async (event, args) => {
     console.log("meow");
-    sound.play(path.join(__dirname, "assets/meow/", args));
+    console.log(path.join(__dirname, "assets", "meow", args))
+    const audio = new Howl({src: ["./assets/meow/meow.mp3"], volume: 1, format: ['mp3']});
+    audio.play();
+
 });
 
 ipcMain.handle('eatFile', async (event, args) => {
