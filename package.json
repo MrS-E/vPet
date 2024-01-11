@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "A virtual desktop pet.",
   "main": "main.js",
+  "author": "MrS-E",
   "scripts": {
     "start": "electron main.js",
-    "rebuild": "node-gyp rebuild"
+    "rebuild": "node-gyp rebuild",
+    "build:node_modules": "cd js/audioplayer && npm install && npm run build"
   },
   "author": "MrS-E",
   "license": "ISC",

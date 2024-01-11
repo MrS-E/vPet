@@ -4,7 +4,7 @@ const path = require("path");
 const robot = require("@jitsi/robotjs");
 const { exec } = require('child_process')
 const fs = require("fs");
-const sound = require("./js/main");
+const sound = require("./js/audioplayer/build/main");
 const soundOld = require("sound-play");
 
 let win;
