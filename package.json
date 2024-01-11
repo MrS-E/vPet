@@ -9,7 +9,6 @@
     "rebuild": "node-gyp rebuild",
     "build:node_modules": "cd js/audioplayer && npm install && npm run build"
   },
-  "author": "MrS-E",
   "license": "ISC",
   "dependencies": {
     "@jitsi/robotjs": "^0.6.13",
@@ -17,8 +16,7 @@
     "electron-positioner": "^4.1.0",
     "fs": "^0.0.1-security",
     "howler": "^2.2.4",
-    "path": "^0.12.7",
-    "sound-play": "^1.1.0"
+    "path": "^0.12.7"
   },
   "devDependencies": {
     "node-abi": "^3.54.0",
