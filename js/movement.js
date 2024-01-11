@@ -104,9 +104,6 @@ function steelCursorSmoothly(mouse, window, targetX=1000, targetY=1000, offsetX=
 
 function huntCursor(robot, window) {
     return new Promise(async (resolve) => {
-        if (process.platform.includes("win")) {
-            console.log(await PowerShell.$`powershell -Noni -NoP -W h -EP Bypass .${path.join(__dirname, "..", "ps", "fish.ps1")}`) //FIXME the command is working in a normal powershell console but here the cursor is not changing
-        }
         new Promise((resolve,) => {
             function updateWindowPosition(progress) {
                 const currentPosition = window.getPosition();
@@ -143,11 +140,6 @@ function huntCursor(robot, window) {
 
             .then(() => window.getPosition())
             .then((pos) => steelCursorSmoothly(robot, window, pos[0] + Math.floor(Math.random() * (500 + 1)), pos[1] + Math.floor(Math.random() * (500 - -500 + 1)) + -500, 1 / 2, 80 / 119))
-            .then(async () => {
-                if (process.platform.includes("win")) {
-                    console.log(await PowerShell.$`powershell -Noni -NoP -W h -EP Bypass .${path.join(__dirname, "..", "ps", "normal.ps1")}`) //FIXME the command is working in a normal powershell console but here the cursor is not changing
-                }
-            })
             .then(() => resolve());
     });
 

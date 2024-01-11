@@ -2,7 +2,7 @@ const { app, BrowserWindow, screen, ipcMain, dialog } = require('electron');
 const {moveWindowSmoothly, moveCursorSmoothly, steelCursorSmoothly, huntCursor} = require("./js/movement");
 const path = require("path");
 const robot = require("@jitsi/robotjs");
-const {Howl, Howler} = require('howler');
+const { exec } = require('child_process')
 const fs = require("fs");
 
 let win;
@@ -89,11 +89,27 @@ ipcMain.on('steelCursor', async (event, args) => {
 });
 
 ipcMain.on('huntCursor', async (event, args) => {
+    function runExec(command) {
+        if (process.platform.includes("win")) {
+            exec(command, (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Error executing PowerShell commands: ${error}`);
+                    return;
+                }
+
+                console.log('Output:', stdout);
+                console.error('Error:', stderr);
+            });
+
+        }
+    }
+
     console.log("hunt");
-    const audio = new Howl({src: [path.join(__dirname, "assets", "meow", "chipi.mp3")], loop: true, volume: 1});
-    audio.play();
+
+    runExec(`powershell.exe -Command "sp 'HKCU:Control Panel\\\\Cursors' Arrow './ps/fish.ani'; (Add-Type -Name c -Pass -M '[DllImport(\\"user32.dll\\")] public static extern bool SystemParametersInfo(int A,int b,int c,int d);')::SystemParametersInfo(87,0,0,3)"`);
     await huntCursor(robot, win);
-    audio.stop();
+    runExec(`powershell.exe -Command "sp 'HKCU:Control Panel\\\\Cursors' Arrow './ps/norm.cur'; (Add-Type -Name c -Pass -M '[DllImport(\\"user32.dll\\")] public static extern bool SystemParametersInfo(int A,int b,int c,int d);')::SystemParametersInfo(87,0,0,3)"`);
+
     event.returnValue = "done";
 
 })
