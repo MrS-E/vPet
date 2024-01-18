@@ -6,6 +6,10 @@
   "scripts": {
     "build": "webpack --config webpack.config.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MrS-E/sound-play.git"
+  },
   "author": "nomadhoc & MrS-E",
   "keywords": [
     "sound",
